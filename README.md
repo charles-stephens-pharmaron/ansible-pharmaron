@@ -17,3 +17,4 @@ ansible all -m ping
 ansible-playbook playbooks/linux-patching.yml
  
 # ansible-pharmaron
+# ansible-pharmaron
