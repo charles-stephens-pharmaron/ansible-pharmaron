@@ -1,0 +1,56 @@
+# Ansible
+*.retry
+
+# Vault passwords
+.vault_pass
+vault_pass.txt
+vault-password.txt
+
+# Secrets
+secrets.yml
+secret.yml
+*.key
+*.pem
+*.p12
+*.pfx
+
+# SSH
+.ssh/
+ssh/
+id_rsa*
+id_ed25519*
+known_hosts
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+*.tmp
+*.swp
+*.bak
+*~
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# VS Code
+.vscode/
+
+# IDE
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Local inventory overrides
+inventory/local/
+inventory/test/
+
+# Terraform
+.terraform/
+terraform.tfstate*
