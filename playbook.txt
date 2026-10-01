@@ -51,6 +51,6 @@ Thumbs.db
 inventory/local/
 inventory/test/
 
-# Terraform
+# Terraform (if you add later)
 .terraform/
 terraform.tfstate*
