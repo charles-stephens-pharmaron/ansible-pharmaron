@@ -111,6 +111,18 @@ else
     echo "Verify the machine account token manually."
 fi
 
+echo "Installing Proxmox SSH key..."
+
+SSH_KEY_UUID="39946abd-1150-486b-894d-b4d7012fb248"
+
+mkdir -p "$HOME/.ssh"
+
+bws secret get "$SSH_KEY_UUID" --output json \
+| jq -r '.value' \
+> "$HOME/.ssh/proxmox_ansible"
+
+chmod 600 "$HOME/.ssh/proxmox_ansible"
+
 echo "Bootstrap complete."
 
 echo "" 
