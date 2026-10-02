@@ -1,0 +1,41 @@
+ubuntu_version: noble
+ubuntu_image_file: "{{ ubuntu_version }}-server-cloudimg-amd64.img"
+ubuntu_image_url: "https://cloud-images.ubuntu.com/{{ ubuntu_version }}/current/{{ ubuntu_image_file }}"
+image_directory: /home/ansible/images
+
+template_vmid: 9000
+template_name: ubuntu-2404-template
+template_memory: 4096
+template_cores: 4
+template_bridge: LANOut
+template_vlan: 4
+template_storage: devprox_disks
+
+template_ip: 10.25.4.31/24
+template_gateway: 10.25.4.1
+template_user: ansible
+template_ssh_key: /home/ansible/.ssh/proxmox_ansible.pub
+template_timezone: America/New_York
+
+bgadmin_user: pharmaron_bgadmin
+bgadmin_ssh_key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIN6QLGbSzAQ6tYBa4XIN6M+5KQsRQIbWiKgKQf13Q6j6"
+
+template_packages:
+  - sudo
+  - vim
+  - nano
+  - curl
+  - wget
+  - rsync
+  - dnsutils
+  - net-tools
+  - nfs-common
+  - unzip
+  - zip
+  - jq
+  - lsof
+  - tcpdump
+  - traceroute
+  - htop
+  - bash-completion
+  - qemu-guest-agent

@@ -1,0 +1,203 @@
+---
+# This playbook builds an Ubuntu template for production use at Pharmaron Coventry.
+# See ../var/build-ubuntu24-template-vars.yml for configuration options.
+
+- name: Build Ubuntu Template
+  hosts: proxmox_ssh
+  vars_files:
+  - ../vars/build-ubuntu24-template-vars.yml
+
+  tasks:
+
+    - name: Create image directory
+      ansible.builtin.file:
+        path: "{{ image_directory }}"
+        state: directory
+        mode: '0755'
+
+    - name: Download latest Ubuntu cloud image
+      ansible.builtin.get_url:
+        url: "{{ ubuntu_image_url }}"
+        dest: "{{ image_directory }}/{{ ubuntu_image_file }}"
+
+    - name: Check if template VM exists
+      ansible.builtin.command:
+        cmd: sudo qm status {{ template_vmid }}
+      register: vm_exists
+      failed_when: false
+      changed_when: false
+
+    - name: Stop and destroy existing template VM
+      ansible.builtin.shell: |
+        sudo qm stop {{ template_vmid }} || true
+        sleep 2
+        sudo qm destroy {{ template_vmid }} --purge
+      when: vm_exists.rc == 0
+
+    - name: Create template VM
+      ansible.builtin.command:
+        cmd: >
+          sudo qm create {{ template_vmid }}
+          --name {{ template_name }}
+          --memory {{ template_memory }}
+          --cores {{ template_cores }}
+          --net0 virtio,bridge={{ template_bridge }},tag={{ template_vlan }}
+
+    - name: Import cloud image disk
+      ansible.builtin.command:
+        cmd: >
+          sudo qm importdisk
+          {{ template_vmid }}
+          {{ image_directory }}/{{ ubuntu_image_file }}
+          {{ template_storage }}
+
+    - name: Configure template VM
+      ansible.builtin.command:
+        cmd: >
+          sudo qm set {{ template_vmid }}
+          --scsi0 {{ template_storage }}:{{ template_vmid }}/vm-{{ template_vmid }}-disk-0.raw
+          --boot order=scsi0
+          --scsihw virtio-scsi-pci
+          --ide2 {{ template_storage }}:cloudinit
+          --agent enabled=1
+          --ciuser {{ template_user }}
+          --ipconfig0 ip={{ template_ip }},gw={{ template_gateway }}
+          --sshkeys {{ template_ssh_key }}
+
+    - name: Start template VM
+      ansible.builtin.command:
+        cmd: >
+          sudo qm start {{ template_vmid }}
+
+    - name: Wait for SSH
+      ansible.builtin.wait_for:
+        host: "{{ template_ip.split('/')[0] }}"
+        port: 22
+        timeout: 300
+      delegate_to: localhost
+
+    - name: Add template VM to inventory
+      ansible.builtin.add_host:
+        name: template_vm
+        groups: template_build
+        ansible_host: "{{ template_ip.split('/')[0] }}"
+        ansible_user: "{{ template_user }}"
+        ansible_ssh_private_key_file: ~/.ssh/proxmox_ansible
+
+- name: Configure Ubuntu Template
+  hosts: template_build
+  become: true
+  gather_facts: true
+  vars_files:
+  - ../vars/build-ubuntu24-template-vars.yml
+
+  tasks:
+    - name: Wait for cloud-init to finish
+      ansible.builtin.command:
+        cmd: cloud-init status --wait
+      register: cloudinit_status
+      changed_when: false
+      failed_when:
+        - "'status: done' not in cloudinit_status.stdout"
+
+    - name: Gather facts
+      ansible.builtin.setup:
+
+    - name: Update apt cache
+      ansible.builtin.apt:
+        update_cache: true
+
+    - name: Upgrade all packages
+      ansible.builtin.apt:
+        upgrade: dist
+
+    - name: Install template packages
+      ansible.builtin.apt:
+        name: "{{ template_packages }}"
+        state: present
+
+    - name: Enable qemu guest agent
+      ansible.builtin.service:
+        name: qemu-guest-agent
+        state: started
+        enabled: true
+
+    - name: Set timezone
+      community.general.timezone:
+        name: "{{ template_timezone }}"
+
+    - name: Create break glass administrator
+      ansible.builtin.user:
+        name: "{{ bgadmin_user }}"
+        groups: sudo
+        append: true
+        shell: /bin/bash
+        create_home: true
+
+    - name: Install break glass administrator key
+      ansible.posix.authorized_key:
+        user: "{{ bgadmin_user }}"
+        state: present
+        key: "{{ bgadmin_ssh_key }}"
+
+    - name: Configure passwordless sudo
+      ansible.builtin.copy:
+        dest: "/etc/sudoers.d/{{ bgadmin_user }}"
+        content: |
+          {{ bgadmin_user }} ALL=(ALL) NOPASSWD:ALL
+        owner: root
+        group: root
+        mode: '0440'
+        validate: 'visudo -cf %s'
+
+    - name: Disable root SSH login
+      ansible.builtin.lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^#?PermitRootLogin'
+        line: 'PermitRootLogin no'
+
+    - name: Disable password authentication
+      ansible.builtin.lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^#?PasswordAuthentication'
+        line: 'PasswordAuthentication no'
+
+    - name: Restart SSH
+      ansible.builtin.service:
+        name: ssh
+        state: restarted
+
+    - name: Prepare template for cloning
+      ansible.builtin.shell: |
+        cloud-init clean
+        truncate -s 0 /etc/machine-id
+        rm -f /var/lib/dbus/machine-id
+        rm -f /etc/ssh/ssh_host_*
+    
+    - name: Shutdown template VM
+      ansible.builtin.command:
+        cmd: shutdown -h now
+      async: 1
+      poll: 0
+      ignore_errors: true
+
+- name: Convert VM to Template
+  hosts: proxmox_ssh
+  gather_facts: false
+  vars_files:
+  - ../vars/build-ubuntu24-template-vars.yml
+
+  tasks:
+
+    - name: Wait for VM to stop
+      ansible.builtin.command:
+        cmd: sudo qm status {{ template_vmid }}
+      register: vm_status
+      until: "'stopped' in vm_status.stdout"
+      retries: 30
+      delay: 5
+      changed_when: false
+
+    - name: Convert VM to template
+      ansible.builtin.command:
+        cmd: sudo qm template {{ template_vmid }}
