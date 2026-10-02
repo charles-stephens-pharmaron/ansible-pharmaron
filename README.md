@@ -16,7 +16,7 @@ Ex. "ansible-playbook build-ubuntu24-template.yml"
  
 ## Available playbooks
 
-build-ubuntu24-template.yml
+#### build-ubuntu24-template.yml
 Builds and configures the Ubuntu 24 Proxmox VM template used for automated server deployments.
 
 ## Secrets Management
