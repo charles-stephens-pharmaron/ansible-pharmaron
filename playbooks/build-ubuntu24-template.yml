@@ -95,7 +95,6 @@
   gather_facts: true
   vars_files:
   - ../vars/build-ubuntu24-template-vars.yml
-  - /opt/ansible-pharmaron/bws_vault.yml
 
   tasks:
     - name: Wait for cloud-init to finish
