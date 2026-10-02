@@ -10,6 +10,8 @@ template_cores: 4
 template_bridge: LANOut
 template_vlan: 4
 template_storage: devprox_disks
+# for disk size the format is add size with the unit capitalized - +xxG
+template_disk_size: +2G
 
 template_ip: 10.25.4.31/24
 template_gateway: 10.25.4.1
@@ -19,6 +21,8 @@ template_timezone: America/New_York
 
 bgadmin_user: pharmaron_bgadmin
 bgadmin_ssh_key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIN6QLGbSzAQ6tYBa4XIN6M+5KQsRQIbWiKgKQf13Q6j6"
+# bgadmin_pass_hash: $6$GtWDgUVGP/LNtGJr$ex.B8h49NisbjUFrcQDyrODG9QC2Np4H0U83a2dIrBFKxctJ4ubOJETTzKqk2bmW3dNifdiNZTuTnJNnJsrRI1
+bgadmin_pass_hash: $6$upEZQCtWemC/6W/1$igu82OIoSPco.b7aWPU1qHznKHsFWQHKuxnzbQYU5a0iDxV4V8VFLMuz0iqejQJo0tYOkayGHAA2ks6Dwk9dH/
 
 template_packages:
   - sudo
@@ -39,3 +43,5 @@ template_packages:
   - htop
   - bash-completion
   - qemu-guest-agent
+  - docker.io
+  - docker-compose-v2

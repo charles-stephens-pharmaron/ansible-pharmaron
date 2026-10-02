@@ -64,6 +64,11 @@
           --ipconfig0 ip={{ template_ip }},gw={{ template_gateway }}
           --sshkeys {{ template_ssh_key }}
 
+    - name: Resize template disk
+      ansible.builtin.command:
+        cmd: >
+          sudo qm resize {{ template_vmid }} scsi0 {{ template_disk_size }}
+
     - name: Start template VM
       ansible.builtin.command:
         cmd: >
@@ -103,29 +108,6 @@
     - name: Gather facts
       ansible.builtin.setup:
 
-    - name: Update apt cache
-      ansible.builtin.apt:
-        update_cache: true
-
-    - name: Upgrade all packages
-      ansible.builtin.apt:
-        upgrade: dist
-
-    - name: Install template packages
-      ansible.builtin.apt:
-        name: "{{ template_packages }}"
-        state: present
-
-    - name: Enable qemu guest agent
-      ansible.builtin.service:
-        name: qemu-guest-agent
-        state: started
-        enabled: true
-
-    - name: Set timezone
-      community.general.timezone:
-        name: "{{ template_timezone }}"
-
     - name: Create break glass administrator
       ansible.builtin.user:
         name: "{{ bgadmin_user }}"
@@ -133,6 +115,7 @@
         append: true
         shell: /bin/bash
         create_home: true
+        password: "{{ bgadmin_pass_hash }}"
 
     - name: Install break glass administrator key
       ansible.posix.authorized_key:
@@ -166,6 +149,30 @@
       ansible.builtin.service:
         name: ssh
         state: restarted
+
+    - name: Update apt cache
+      ansible.builtin.apt:
+        update_cache: true
+
+    - name: Upgrade all packages
+      ansible.builtin.apt:
+        upgrade: dist
+
+    - name: Install template packages
+      ansible.builtin.apt:
+        name: "{{ template_packages }}"
+        state: present
+
+    - name: Enable qemu guest agent
+      ansible.builtin.service:
+        name: qemu-guest-agent
+        state: started
+        enabled: true
+
+    - name: Set timezone
+      community.general.timezone:
+        name: "{{ template_timezone }}"
+
 
     - name: Prepare template for cloning
       ansible.builtin.shell: |
