@@ -1,0 +1,11 @@
+proxmox_api_host: devproxn2.ph-cov.local
+proxmox_api_user: ansible@pve
+proxmox_api_token_id: ansible
+proxmox_api_token_secret: xxxxxxxxx
+proxmox_node: devproxn2
+
+template_vmid: 9000
+template_name: ubuntu24-template
+
+template_vmid: 9000
+template_name: ubuntu24-template

@@ -95,6 +95,7 @@
   gather_facts: true
   vars_files:
   - ../vars/build-ubuntu24-template-vars.yml
+  - /opt/ansible-pharmaron/bws_vault.yml
 
   tasks:
     - name: Wait for cloud-init to finish
@@ -115,7 +116,7 @@
         append: true
         shell: /bin/bash
         create_home: true
-        password: "{{ bgadmin_pass_hash }}"
+        password: "{{ bgadmin_pass }}"
 
     - name: Install break glass administrator key
       ansible.posix.authorized_key:

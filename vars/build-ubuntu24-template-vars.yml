@@ -22,7 +22,8 @@ template_timezone: America/New_York
 bgadmin_user: pharmaron_bgadmin
 bgadmin_ssh_key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIN6QLGbSzAQ6tYBa4XIN6M+5KQsRQIbWiKgKQf13Q6j6"
 # bgadmin_pass_hash: $6$GtWDgUVGP/LNtGJr$ex.B8h49NisbjUFrcQDyrODG9QC2Np4H0U83a2dIrBFKxctJ4ubOJETTzKqk2bmW3dNifdiNZTuTnJNnJsrRI1
-bgadmin_pass_hash: $6$upEZQCtWemC/6W/1$igu82OIoSPco.b7aWPU1qHznKHsFWQHKuxnzbQYU5a0iDxV4V8VFLMuz0iqejQJo0tYOkayGHAA2ks6Dwk9dH/
+# bgadmin_pass_hash: $6$upEZQCtWemC/6W/1$igu82OIoSPco.b7aWPU1qHznKHsFWQHKuxnzbQYU5a0iDxV4V8VFLMuz0iqejQJo0tYOkayGHAA2ks6Dwk9dH/
+bgadmin_pass: "{{ lookup('bitwarden.secrets.lookup', '82059090-2208-4ecd-bd32-b4d70107bbde', access_token=bws_access_token) }}"
 
 template_packages:
   - sudo
