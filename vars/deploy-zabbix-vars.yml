@@ -15,9 +15,12 @@ template_name: ubuntu-2404-template
 
 vmid: 9005
 vm_name: PNMON002
+vm_description: "This is the Zabbix monitoring VM"
 vm_cores: 4
 vm_memory: 4024
 vm_ip: 10.25.4.200/24
 vm_gateway: 10.25.4.1
+vm_dns: 10.25.4.11
+vm_searchdomain: ph-cov.local
 
 inventory_group: zabbix

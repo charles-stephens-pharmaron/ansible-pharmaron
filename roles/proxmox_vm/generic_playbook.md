@@ -1,0 +1,24 @@
+---
+# ============================================================================
+#
+# Generic Playbook
+
+- name: Deploy Zabbix VM
+  hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars_files:
+    - ../vars/deploy-zabbix-vars.yml
+
+  module_defaults:
+    group/community.proxmox.proxmox:
+      api_host: "{{ proxmox_api_host }}"
+      api_user: "{{ proxmox_api_user }}"
+      api_token_id: "{{ proxmox_api_token_id }}"
+      api_token_secret: "{{ proxmox_api_token_secret }}"
+
+  roles:
+    - proxmox_vm
+#
+# ===========================================================================

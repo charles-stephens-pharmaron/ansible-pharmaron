@@ -1,47 +1,3 @@
----
-# ============================================================================
-# Generic VM Deployment Variables
-# ============================================================================
-#
-# vars_files:
-#   - ../vars/deploy-vm-vars.yml
-#
-# Required variables:
-#
-# Proxmox API
-# proxmox_api_host: devproxn1.ph-cov.local
-# proxmox_api_user: ansible@pve
-# proxmox_api_token_id: ansible
-# proxmox_api_token_secret: xxxxxxxxxxxxx
-#
-# Template / Target
-# proxmox_node: devproxn2
-# template_name: ubuntu24-template
-# template_vmid: 9000
-#
-# VM Configuration
-# vmid: 1100
-# vm_name: app01
-# vm_cores: 4
-# vm_memory: 8192
-#
-# Cloud-Init Networking
-# vm_ip: 10.25.4.31/24
-# vm_gateway: 10.25.4.1
-#
-# Disk Resize (optional)
-# disk_resize: "+10G"
-#
-# SSH Access
-# ansible_user: pharmaron_bgadmin
-# ansible_ssh_private_key_file: ~/.ssh/proxmox_ansible
-#
-# Inventory
-# inventory_hostname: app_vm
-# inventory_group: deployed_vms
-#
-# ============================================================================
-
     - name: Stop existing VM
       community.proxmox.proxmox_kvm:
         vmid: "{{ vmid }}"
@@ -78,6 +34,7 @@
         vmid: "{{ vmid }}"
         cores: "{{ vm_cores }}"
         balloon: "{{ vm_memory }}"
+        description: "{{ vm_description }}"
         state: present
         autostart: true
 
@@ -89,6 +46,10 @@
         update: true
         ipconfig:
           ipconfig0: "ip={{ vm_ip }},gw={{ vm_gateway }}"
+        nameservers:
+        - "{{ vm_dns }}"
+        searchdomains:
+        - "{{ vm_searchdomain }}"
 
     - name: Resize primary disk
       community.proxmox.proxmox_disk:
