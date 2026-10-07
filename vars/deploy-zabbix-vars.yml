@@ -17,9 +17,7 @@ vmid: 9005
 vm_name: PNMON001
 vm_cores: 4
 vm_memory: 4024
-vm_ip: 10.25.4.200
+vm_ip: 10.25.4.200/24
 vm_gateway: 10.25.4.1
 
-default_user: "{{ lookup('bitwarden.secrets.lookup', '00285151-a6e3-4c0f-977a-b4db0133bd50', access_token=bws_access_token) }}"
-default_user_pass: "{{ lookup('bitwarden.secrets.lookup', '3fa039f8-f2fa-4ec8-a923-b4db01344f31', access_token=bws_access_token) }}"
-default_user_ssh_public: "{{ lookup('bitwarden.secrets.lookup', 'd04e91c4-dbd4-4ed7-b0fa-b4db01349aef', access_token=bws_access_token) }}"
+inventory_group: zabbix
