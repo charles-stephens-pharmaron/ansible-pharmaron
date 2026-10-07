@@ -7,14 +7,28 @@
   vars_files:
     - ../vars/deploy-zabbix-vars.yml
 
+  module_defaults:
+    group/community.proxmox.proxmox:
+      api_host: "{{ proxmox_api_host }}"
+      api_user: "{{ proxmox_api_user }}"
+      api_token_id: "{{ proxmox_api_token_id }}"
+      api_token_secret: "{{ proxmox_api_token_secret }}"
+
   tasks:
+
+    - name: Stop VM
+      community.proxmox.proxmox_kvm:
+        vmid: "{{ vmid }}"
+        node: "{{ proxmox_node }}"
+        state: stopped
+      ignore_errors: true
+
+    - name: Wait for VM shutdown
+      pause:
+        seconds: 15
 
     - name: Remove existing VM
       community.proxmox.proxmox_kvm:
-        api_host: "{{ proxmox_api_host }}"
-        api_user: "{{ proxmox_api_user }}"
-        api_token_id: "{{ proxmox_api_token_id }}"
-        api_token_secret: "{{ proxmox_api_token_secret }}"
         node: "{{ proxmox_node }}"
         vmid: "{{ vmid }}"
         state: absent
@@ -23,13 +37,10 @@
 
     - name: Clone Zabbix VM from template
       community.proxmox.proxmox_kvm:
-        api_host: "{{ proxmox_api_host }}"
-        api_user: "{{ proxmox_api_user }}"
-        api_token_id: "{{ proxmox_api_token_id }}"
-        api_token_secret: "{{ proxmox_api_token_secret }}"
         node: "{{ proxmox_node }}"
         clone: "{{ template_name }}"
-        vmid: "{{ vmid }}"
+        vmid: "{{ template_vmid }}"
+        newid: "{{ vmid }}"
         name: "{{ vm_name }}"
         full: true
         timeout: 300
@@ -37,46 +48,33 @@
 
     - name: Configure VM resources
       community.proxmox.proxmox_kvm:
-        api_host: "{{ proxmox_api_host }}"
-        api_user: "{{ proxmox_api_user }}"
-        api_token_id: "{{ proxmox_api_token_id }}"
-        api_token_secret: "{{ proxmox_api_token_secret }}"
         node: "{{ proxmox_node }}"
         vmid: "{{ vmid }}"
         cores: "{{ vm_cores }}"
-        memory: "{{ vm_memory }}"
+        balloon: "{{ vm_memory }}"
         state: present
+        autostart: true
 
-    - name: Configure cloud-init networking
+    - name: Configure cloud-init
       community.proxmox.proxmox_kvm:
-        api_host: "{{ proxmox_api_host }}"
-        api_user: "{{ proxmox_api_user }}"
-        api_token_id: "{{ proxmox_api_token_id }}"
-        api_token_secret: "{{ proxmox_api_token_secret }}"
         node: "{{ proxmox_node }}"
         vmid: "{{ vmid }}"
         ipconfig:
           ipconfig0: "ip={{ vm_ip }},gw={{ vm_gateway }}"
+        ciuser: "{{ default_user }}"
+        sshkeys: "{{ default_user_ssh_public }}"
+        cipassword: "{{ default_user_pass }}"
         state: present
 
     - name: Resize disk
       community.proxmox.proxmox_disk:
-        api_host: "{{ proxmox_api_host }}"
-        api_user: "{{ proxmox_api_user }}"
-        api_token_id: "{{ proxmox_api_token_id }}"
-        api_token_secret: "{{ proxmox_api_token_secret }}"
-        node: "{{ proxmox_node }}"
         vmid: "{{ vmid }}"
         disk: scsi0
-        size: "+5G"
+        size: "+10G"
         state: resized
 
     - name: Start VM
       community.proxmox.proxmox_kvm:
-        api_host: "{{ proxmox_api_host }}"
-        api_user: "{{ proxmox_api_user }}"
-        api_token_id: "{{ proxmox_api_token_id }}"
-        api_token_secret: "{{ proxmox_api_token_secret }}"
         node: "{{ proxmox_node }}"
         vmid: "{{ vmid }}"
         state: started

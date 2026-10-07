@@ -123,11 +123,36 @@
         state: present
         key: "{{ bgadmin_ssh_key }}"
 
-    - name: Configure passwordless sudo
+    - name: Create cstephens
+      ansible.builtin.user:
+        name: "{{ cstephens_user }}"
+        groups: sudo
+        append: true
+        shell: /bin/bash
+        create_home: true
+        password: "{{ cstephens_user_pass }}"
+    
+    - name: Install break glass administrator key
+      ansible.posix.authorized_key:
+        user: "{{ cstephens_user }}"
+        state: present
+        key: "{{ cstephens_user_ssh_public }}"
+
+    - name: Configure passwordless sudo bgadmin
       ansible.builtin.copy:
         dest: "/etc/sudoers.d/{{ bgadmin_user }}"
         content: |
           {{ bgadmin_user }} ALL=(ALL) NOPASSWD:ALL
+        owner: root
+        group: root
+        mode: '0440'
+        validate: 'visudo -cf %s'
+
+    - name: Configure passwordless sudo cstephens
+      ansible.builtin.copy:
+        dest: "/etc/sudoers.d/{{ cstephens_user }}"
+        content: |
+          {{ cstephens_user }} ALL=(ALL) NOPASSWD:ALL
         owner: root
         group: root
         mode: '0440'
@@ -204,6 +229,14 @@
       retries: 30
       delay: 5
       changed_when: false
+
+    - name: Clear cloud-init settings from template
+      ansible.builtin.shell: |
+        sudo qm set {{ template_vmid }} --delete ciuser
+        sudo qm set {{ template_vmid }} --delete cipassword
+        sudo qm set {{ template_vmid }} --delete nameserver
+        sudo qm set {{ template_vmid }} --delete searchdomain
+        sudo qm set {{ template_vmid }} --ipconfig0 ip=dhcp
 
     - name: Convert VM to template
       ansible.builtin.command:

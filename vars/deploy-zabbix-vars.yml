@@ -1,11 +1,25 @@
+# Requires BWS_ACCESS_TOKEN environment variable
+# Example:
+# source ./bws.env
+# before running ansible-playbook
+bws_access_token: "{{ lookup('ansible.builtin.env', 'bws_access_token') }}"
+
 proxmox_api_host: devproxn2.ph-cov.local
-proxmox_api_user: ansible@pve
-proxmox_api_token_id: ansible
-proxmox_api_token_secret: xxxxxxxxx
+proxmox_api_user: "{{ lookup('bitwarden.secrets.lookup', '9a6d8b32-7528-413b-a046-b4db010859a9', access_token=bws_access_token) }}"
+proxmox_api_token_id: "{{ lookup('bitwarden.secrets.lookup', 'fc074f09-edcf-43d4-9ffa-b4db01089e8f', access_token=bws_access_token) }}"
+proxmox_api_token_secret: "{{ lookup('bitwarden.secrets.lookup', '8571f211-1376-4b30-8999-b4db0108b59c', access_token=bws_access_token) }}"
 proxmox_node: devproxn2
 
 template_vmid: 9000
-template_name: ubuntu24-template
+template_name: ubuntu-2404-template
 
-template_vmid: 9000
-template_name: ubuntu24-template
+vmid: 9005
+vm_name: PNMON001
+vm_cores: 4
+vm_memory: 4024
+vm_ip: 10.25.4.200
+vm_gateway: 10.25.4.1
+
+default_user: "{{ lookup('bitwarden.secrets.lookup', '00285151-a6e3-4c0f-977a-b4db0133bd50', access_token=bws_access_token) }}"
+default_user_pass: "{{ lookup('bitwarden.secrets.lookup', '3fa039f8-f2fa-4ec8-a923-b4db01344f31', access_token=bws_access_token) }}"
+default_user_ssh_public: "{{ lookup('bitwarden.secrets.lookup', 'd04e91c4-dbd4-4ed7-b0fa-b4db01349aef', access_token=bws_access_token) }}"
