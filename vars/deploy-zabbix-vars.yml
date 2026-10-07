@@ -14,7 +14,7 @@ template_vmid: 9000
 template_name: ubuntu-2404-template
 
 vmid: 9005
-vm_name: PNMON001
+vm_name: PNMON002
 vm_cores: 4
 vm_memory: 4024
 vm_ip: 10.25.4.200/24

@@ -17,80 +17,16 @@
   roles:
     - proxmox_vm
 
-  # tasks:
+- name: Configure Zabbix VM
+  hosts: zabbix
+  gather_facts: false
 
-  #   - name: Stop VM
-  #     community.proxmox.proxmox_kvm:
-  #       vmid: "{{ vmid }}"
-  #       node: "{{ proxmox_node }}"
-  #       state: stopped
-  #     ignore_errors: true
+  vars_files:
+    - ../vars/deploy-zabbix-vars.yml
 
-  #   - name: Wait for VM shutdown
-  #     pause:
-  #       seconds: 15
+  tasks:
+  
+    - name: Verify connectivity
+      ansible.builtin.ping:
 
-  #   - name: Remove existing VM
-  #     community.proxmox.proxmox_kvm:
-  #       node: "{{ proxmox_node }}"
-  #       vmid: "{{ vmid }}"
-  #       state: absent
-  #       purge: true
-  #     ignore_errors: true
-
-  #   - name: Clone Zabbix VM from template
-  #     community.proxmox.proxmox_kvm:
-  #       node: "{{ proxmox_node }}"
-  #       clone: "{{ template_name }}"
-  #       vmid: "{{ template_vmid }}"
-  #       newid: "{{ vmid }}"
-  #       name: "{{ vm_name }}"
-  #       full: true
-  #       timeout: 300
-  #       state: present
-
-  #   - name: Configure VM resources
-  #     community.proxmox.proxmox_kvm:
-  #       node: "{{ proxmox_node }}"
-  #       vmid: "{{ vmid }}"
-  #       cores: "{{ vm_cores }}"
-  #       balloon: "{{ vm_memory }}"
-  #       state: present
-  #       autostart: true
-
-  #   - name: Configure cloud-init
-  #     community.proxmox.proxmox_kvm:
-  #       node: "{{ proxmox_node }}"
-  #       vmid: "{{ vmid }}"
-  #       state: present
-  #       update: true
-  #       ipconfig:
-  #         ipconfig0: "ip={{ vm_ip }},gw={{ vm_gateway }}"
-
-
-  #   - name: Resize disk
-  #     community.proxmox.proxmox_disk:
-  #       vmid: "{{ vmid }}"
-  #       disk: scsi0
-  #       size: "+10G"
-  #       state: resized
-
-  #   - name: Start VM
-  #     community.proxmox.proxmox_kvm:
-  #       node: "{{ proxmox_node }}"
-  #       vmid: "{{ vmid }}"
-  #       state: started
-
-  #   - name: Wait for SSH
-  #     ansible.builtin.wait_for:
-  #       host: "{{ vm_ip.split('/')[0] }}"
-  #       port: 22
-  #       timeout: 300
-
-  #   - name: Add Zabbix VM to inventory
-  #     ansible.builtin.add_host:
-  #       name: zabbix_vm
-  #       groups: zabbix_build
-  #       ansible_host: "{{ vm_ip.split('/')[0] }}"
-  #       ansible_user: pharmaron_bgadmin
-  #       ansible_ssh_private_key_file: ~/.ssh/proxmox_ansible
+  
