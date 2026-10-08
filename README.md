@@ -22,6 +22,9 @@ Run any script from here for the playbook.
 #### build-ubuntu24-template.yml
 Builds and configures the Ubuntu 24 Proxmox VM template used for automated server deployments.
 
+#### deploy-zabbix.yml
+Deploys Zabbix server for monitoring.
+
 ## Secrets Management
 This repository does not store any secrets.
 Secrets are retrieved from Bitwarden Secrets Manager at runtime. The Bitwarden access token is stored locally on the Ansible control host.
