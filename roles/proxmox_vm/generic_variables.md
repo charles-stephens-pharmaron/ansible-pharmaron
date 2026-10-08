@@ -31,6 +31,7 @@ vm_ip: 10.25.x.x/2x
 vm_gateway: 10.25.x.1
 vm_dns: 10.25.4.11
 vm_searchdomain: ph-cov.local
+storage_ip: 10.25.7.x/24
 
 Disk Resize (optional)
 disk_resize: "+10G"

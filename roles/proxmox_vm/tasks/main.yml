@@ -37,6 +37,16 @@
         description: "{{ vm_description }}"
         state: present
         autostart: true
+    
+    - name: Add storage network adapter
+      community.proxmox.proxmox_kvm:
+        node: "{{ proxmox_node }}"
+        vmid: "{{ vmid }}"
+        state: present
+        update: true
+        update_unsafe: true
+        net:
+          net1: "virtio,bridge=LANOut,tag=7"
 
     - name: Configure cloud-init networking
       community.proxmox.proxmox_kvm:
@@ -46,6 +56,7 @@
         update: true
         ipconfig:
           ipconfig0: "ip={{ vm_ip }},gw={{ vm_gateway }}"
+          ipconfig1: "ip={{ storage_ip }}"
         nameservers:
         - "{{ vm_dns }}"
         searchdomains:
