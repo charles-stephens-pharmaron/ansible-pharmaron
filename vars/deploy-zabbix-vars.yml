@@ -2,17 +2,22 @@
 # Example:
 # source ./bws.env
 # before running ansible-playbook
+
+# BWS secret used to pull all other secrets
 bws_access_token: "{{ lookup('ansible.builtin.env', 'bws_access_token') }}"
 
+# Proxmox API info
 proxmox_api_host: devproxn2.ph-cov.local
 proxmox_api_user: "{{ lookup('bitwarden.secrets.lookup', '9a6d8b32-7528-413b-a046-b4db010859a9', access_token=bws_access_token) }}"
 proxmox_api_token_id: "{{ lookup('bitwarden.secrets.lookup', 'fc074f09-edcf-43d4-9ffa-b4db01089e8f', access_token=bws_access_token) }}"
 proxmox_api_token_secret: "{{ lookup('bitwarden.secrets.lookup', '8571f211-1376-4b30-8999-b4db0108b59c', access_token=bws_access_token) }}"
 proxmox_node: devproxn2
 
+# Template VM to pull from
 template_vmid: 9000
 template_name: ubuntu-2404-template
 
+# VM info
 vmid: 9005
 vm_name: PNMON002
 vm_description: "This is the Zabbix monitoring VM"
@@ -25,23 +30,14 @@ storage_ip: 10.25.7.50/24
 vm_searchdomain: ph-cov.local
 disk_resize: +35G
 
+# Dynamic inventory group
+# Arbitrary, doesn't really matter what you call this, it only exists for as long as the playbook runs.
 inventory_group: zabbix
 
-# # Zabbix .env file
-# Generate .env file
-# #postgres sql
-# POSTGRES_DB=zabbix
-# POSTGRES_USER=zabbix
-# POSTGRES_PASSWORD=change-me
-# #smtp auth
-# SMTP_USERNAME=
-# SMTP_PASSWORD=
-# # SMTP
-# SMTP_HOST=
-# SMTP_PORT=
-# # SNMPv3
-# SNMPV3_AUTH_PASSPHRASE=
-# SNMPV3_PRIV_PASSPHRASE=
-# #nfs
-# POSTGRES_NFS_OPTS=addr=10.25.7.4,nfsvers=4,rw,hard,timeo=600,retrans=2
-# POSTGRES_NFS_PATH=:/mnt/devprox_nvme/monitor_zabbix/dev
+# Variables for the repository
+# In order to change between dev / test / prod change the values in bit warden.
+app_path: /opt/zabbix-pharmaron
+git_repo: git@github.com:charles-stephens-pharmaron/zabbix-pharmaron.git
+github_deploy_key: "{{ lookup('bitwarden.secrets.lookup', '9b393565-1224-4b7d-951a-b4dd01113e0d', access_token=bws_access_token) }}"
+
+env_template: zabbix_env.j2

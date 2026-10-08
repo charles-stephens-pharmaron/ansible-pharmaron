@@ -1,0 +1,16 @@
+#postgres sql
+POSTGRES_DB=zabbix
+POSTGRES_USER=zabbix
+POSTGRES_PASSWORD= "{{ lookup('bitwarden.secrets.lookup', '3074fbae-1fcb-43fa-b7bb-b4dd012c925b', access_token=bws_access_token) }}"
+#smtp auth
+SMTP_USERNAME=
+SMTP_PASSWORD=
+# SMTP
+SMTP_HOST=
+SMTP_PORT=
+# SNMPv3
+SNMPV3_AUTH_PASSPHRASE=
+SNMPV3_PRIV_PASSPHRASE=
+#nfs
+POSTGRES_NFS_OPTS="{{ lookup('bitwarden.secrets.lookup', '98f1037c-6253-403a-86fd-b4dd012d1397', access_token=bws_access_token) }}"
+POSTGRES_NFS_PATH="{{ lookup('bitwarden.secrets.lookup', '1318034c-0760-4d0d-ba31-b4dd012d6c2a', access_token=bws_access_token) }}"

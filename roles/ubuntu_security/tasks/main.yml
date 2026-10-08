@@ -1,0 +1,21 @@
+    - name: Configure Zabbix Agent
+      template:
+        src: zabbix_agent2.conf.j2
+        dest: /etc/zabbix/zabbix_agent2.conf
+
+    # - name: Configure NXLog
+    #   template:
+    #     src: nxlog.conf.j2
+    #     dest: /etc/nxlog/nxlog.conf
+
+    # - name: Install NXLog CE repository package
+    #   ansible.builtin.apt:
+    #     deb: https://nxlog.co/system/files/products/files/348/nxlog-ce_3.2.2329_ubuntu_noble_amd64.deb
+
+    - name: Install monitoring packages
+      ansible.builtin.apt:
+        name:
+          - zabbix-agent2
+          # - nxlog-ce
+        state: present
+        update_cache: true

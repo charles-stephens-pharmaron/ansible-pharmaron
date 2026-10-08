@@ -1,0 +1,40 @@
+define ROOT /opt/nxlog
+
+Moduledir %ROOT%/modules
+CacheDir %ROOT%/data
+PidFile /var/run/nxlog/nxlog.pid
+SpoolDir %ROOT%/data
+LogFile /var/log/nxlog/nxlog.log
+
+<Extension syslog>
+    Module xm_syslog
+</Extension>
+
+<Input systemd>
+    Module im_systemd
+</Input>
+
+<Input file_auth>
+    Module im_file
+    File "/var/log/auth.log"
+    SavePos TRUE
+    ReadFromLast TRUE
+</Input>
+
+<Input file_syslog>
+    Module im_file
+    File "/var/log/syslog"
+    SavePos TRUE
+    ReadFromLast TRUE
+</Input>
+
+<Output graylog>
+    Module om_tcp
+    Host {{ graylog_server }}
+    Port {{ graylog_port }}
+    Exec to_syslog_bsd();
+</Output>
+
+<Route r>
+    Path systemd, file_auth, file_syslog => graylog
+</Route>
