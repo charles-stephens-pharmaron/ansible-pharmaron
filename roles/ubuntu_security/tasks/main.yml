@@ -1,21 +1,54 @@
-    - name: Configure Zabbix Agent
-      template:
-        src: zabbix_agent2.conf.j2
-        dest: /etc/zabbix/zabbix_agent2.conf
-
-    # - name: Configure NXLog
-    #   template:
-    #     src: nxlog.conf.j2
-    #     dest: /etc/nxlog/nxlog.conf
+    - name: Prevent services from auto-starting
+      become: true
+      ansible.builtin.copy:
+        dest: /usr/sbin/policy-rc.d
+        mode: "0755"
+        content: |
+          #!/bin/sh
+          exit 101
+    
+    - name: Install Zabbix repository
+      become: true
+      ansible.builtin.apt:
+        deb: https://repo.zabbix.com/zabbix/7.4/release/ubuntu/pool/main/z/zabbix-release/zabbix-release_latest_7.4+ubuntu24.04_all.deb
 
     # - name: Install NXLog CE repository package
     #   ansible.builtin.apt:
     #     deb: https://nxlog.co/system/files/products/files/348/nxlog-ce_3.2.2329_ubuntu_noble_amd64.deb
 
-    - name: Install monitoring packages
+    - name: Update apt cache
+      become: true
       ansible.builtin.apt:
-        name:
+        update_cache: true
+
+    - name: Install Monitor Packages
+      become: true
+      ansible.builtin.apt:
+        name: 
           - zabbix-agent2
           # - nxlog-ce
         state: present
-        update_cache: true
+
+    - name: Re-enable service startup
+      become: true
+      ansible.builtin.file:
+        path: /usr/sbin/policy-rc.d
+        state: absent
+
+    - name: Configure Zabbix Agent
+      become: true
+      template:
+        src: zabbix_agent2.conf.j2
+        dest: /etc/zabbix/zabbix_agent2.conf
+
+  # - name: Configure NXLog
+    #   template:
+    #     src: nxlog.conf.j2
+    #     dest: /etc/nxlog/nxlog.conf
+
+    - name: Enable and start Zabbix Agent 2
+      become: true
+      ansible.builtin.systemd:
+        name: zabbix-agent2
+        enabled: true
+        state: started

@@ -1,6 +1,18 @@
 # Zabbix Agent 2 Configuration
-Server=10.25.4.200
+PidFile=/run/zabbix/zabbix_agent2.pid
+LogFile=/var/log/zabbix/zabbix_agent2.log
+LogFileSize=100
+
+Server=10.25.4.200,172.18.0.0/16
+
+ListenPort=10050
+
 ServerActive=10.25.4.200
 
 HostnameItem=system.hostname
 HostMetadata=ubuntu
+
+PluginSocket=/run/zabbix/agent.plugin.sock
+ControlSocket=/run/zabbix/agent.sock
+Include=/etc/zabbix/zabbix_agent2.d/plugins.d/*.conf
+Include=/etc/zabbix/zabbix_agent2.d/*.conf

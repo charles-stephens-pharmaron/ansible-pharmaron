@@ -40,4 +40,4 @@ app_path: /opt/zabbix-pharmaron
 git_repo: git@github.com:charles-stephens-pharmaron/zabbix-pharmaron.git
 github_deploy_key: "{{ lookup('bitwarden.secrets.lookup', '9b393565-1224-4b7d-951a-b4dd01113e0d', access_token=bws_access_token) }}"
 
-env_template: zabbix_env.j2
+env_template: ../files/zabbix_env.j2

@@ -16,70 +16,20 @@
 
   roles:
     - proxmox_vm
-    - ubuntu_security
 
 - name: Configure Zabbix VM
-  hosts: zabbix
+  hosts: "{{ inventory_group }}"
   gather_facts: false
 
   vars_files:
     - ../vars/deploy-zabbix-vars.yml
 
+  roles:
+    - ubuntu_security
+    - app_deployment
+
   tasks:
   
-    - name: Verify connectivity
-      ansible.builtin.ping:
-  
-    - name: Create application directory
-      become: true
-      ansible.builtin.file:
-        path: "{{ app_path }}"
-        state: directory
-        owner: ansible
-        group: ansible
-        mode: "0755"
-    
-    - name: Create SSH directory
-      become: true
-      ansible.builtin.file:
-        path: /home/ansible/.ssh
-        state: directory
-        owner: ansible
-        group: ansible
-        mode: "0700"
-
-    - name: Deploy GitHub private key
-      become: true
-      no_log: true
-      ansible.builtin.copy:
-        content: "{{ github_deploy_key }}"
-        dest: /home/ansible/.ssh/id_ed25519
-        owner: ansible
-        group: ansible
-        mode: "0600"
-
-    - name: Create SSH config
-      ansible.builtin.copy:
-        dest: /home/ansible/.ssh/config
-        owner: ansible
-        group: ansible
-        mode: "0600"
-        content: |
-          Host github.com
-              HostName ssh.github.com
-              User git
-              Port 443
-              IdentityFile ~/.ssh/id_ed25519
-      
-    - name: Clone repository
-      ansible.builtin.git:
-        repo: "{{ git_repo }}"
-        dest: "{{ app_path }}"
-        version: main
-        key_file: "/home/ansible/.ssh/id_ed25519"
-        accept_hostkey: true
-        force: true
-
     - name: Create .env file
       ansible.builtin.template:
         src: "{{ env_template }}"
