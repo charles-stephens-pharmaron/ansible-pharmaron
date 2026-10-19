@@ -13,4 +13,4 @@ http:
     {{ vm_name }}:
       loadBalancer:
         servers:
-          - url: "http://{{ vm_ip }}:{{ service_port }}"
+          - url: "{{ service_scheme | default('http') }}://{{ vm_ip }}:{{ service_port }}"
