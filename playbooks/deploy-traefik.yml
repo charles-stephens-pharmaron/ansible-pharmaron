@@ -1,0 +1,45 @@
+- name: Deploy Traefik VM
+  hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars_files:
+    - ../vars/deploy-traefik-vars.yml
+
+  module_defaults:
+    group/community.proxmox.proxmox:
+      api_host: "{{ proxmox_api_host }}"
+      api_user: "{{ proxmox_api_user }}"
+      api_token_id: "{{ proxmox_api_token_id }}"
+      api_token_secret: "{{ proxmox_api_token_secret }}"
+
+  roles:
+    - proxmox_vm
+
+- name: Configure Traefik VM
+  hosts: "{{ inventory_group }}"
+  gather_facts: false
+
+  vars_files:
+    - ../vars/deploy-traefik-vars.yml
+
+  roles:
+    - ubuntu_security
+    - app_deployment
+
+
+  tasks:
+
+  - name: Create .env file
+    ansible.builtin.template:
+      src: "{{ env_template }}"
+      dest: /opt/traefik-pharmaron/.env
+      owner: ansible
+      group: ansible
+      mode: "0600"
+    
+  - name: Start containers
+    become: true
+    community.docker.docker_compose_v2:
+      project_src: "{{ app_path }}"
+      state: present

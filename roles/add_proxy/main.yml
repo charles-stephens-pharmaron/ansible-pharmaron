@@ -1,0 +1,8 @@
+- name: Deploy Traefik route for {{ vm_name }}
+  ansible.builtin.template:
+    src: route.yml.j2
+    dest: "/etc/traefik/dynamic/{{ vm_name }}.yml"
+    owner: root
+    group: root
+    mode: "0644"
+  delegate_to: traefik
